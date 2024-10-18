@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:developer' as developer;
 import 'dart:io';
@@ -9,9 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, this.title});
-
   final String? title;
 
   @override
@@ -23,16 +22,59 @@ class _MyHomePageState extends State<MyHomePage> {
   final NetworkInfo _networkInfo = NetworkInfo();
 
   @override
-  void initState() async{
+  void initState() {
     super.initState();
-    _initNetworkInfo();
-    await checkConnectitivy();
-  
+    _initData();
   }
 
-  Future<void> checkConnectitivy() async {
-      var result= await Connectivity().checkConnectivity();
-    print(result);
+  Future<void> _initData() async {
+    await _initNetworkInfo();
+    await _checkConnectivity();
+  }
+
+  Future<void> _checkConnectivity() async {
+    final result = await Connectivity().checkConnectivity();
+    developer.log('Connectivity status: $result');
+  }
+
+  Future<void> _initNetworkInfo() async {
+    final hasPermission = await _requestLocationPermission();
+    final wifiInfo = {
+      'Wifi Name': await _getNetworkInfo(_networkInfo.getWifiName, hasPermission, 'Wifi Name'),
+      'Wifi BSSID': await _getNetworkInfo(_networkInfo.getWifiBSSID, hasPermission, 'Wifi BSSID'),
+      'Wifi IPv4': await _getNetworkInfo(_networkInfo.getWifiIP, true, 'Wifi IPv4'),
+      'Wifi IPv6': await _getNetworkInfo(_networkInfo.getWifiIPv6, true, 'Wifi IPv6'),
+      'Wifi Submask': await _getNetworkInfo(_networkInfo.getWifiSubmask, true, 'Wifi Submask'),
+      'Wifi Broadcast': await _getNetworkInfo(_networkInfo.getWifiBroadcast, true, 'Wifi Broadcast'),
+      'Wifi Gateway': await _getNetworkInfo(_networkInfo.getWifiGatewayIP, true, 'Wifi Gateway')
+    };
+
+    setState(() {
+      _connectionStatus = wifiInfo.entries
+          .map((entry) => '${entry.key}: ${entry.value}')
+          .join('\n');
+    });
+  }
+
+  Future<bool> _requestLocationPermission() async {
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+      return await Permission.locationWhenInUse.request().isGranted;
+    }
+    return true;
+  }
+
+  Future<String> _getNetworkInfo(
+      Future<String?> Function() networkCall, bool hasPermission, String infoType) async {
+    try {
+      if (hasPermission) {
+        final result = await networkCall();
+        return result ?? 'Not available';
+      }
+      return 'Unauthorized to get $infoType';
+    } on PlatformException catch (e) {
+      developer.log('Failed to get $infoType', error: e);
+      return 'Failed to get $infoType';
+    }
   }
 
   @override
@@ -43,109 +85,18 @@ class _MyHomePageState extends State<MyHomePage> {
         elevation: 4,
       ),
       body: Center(
-          child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text(
-            'Network info',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Network info',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-          ),
-          const SizedBox(height: 16),
-          Text(_connectionStatus),
-        ],
-      )),
+            const SizedBox(height: 16),
+            Text(_connectionStatus),
+          ],
+        ),
+      ),
     );
-  }
-
-  Future<void> _initNetworkInfo() async {
-    String? wifiName,
-        wifiBSSID,
-        wifiIPv4,
-        wifiIPv6,
-        wifiGatewayIP,
-        wifiBroadcast,
-        wifiSubmask;
-
-    try {
-      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-        // Request permissions as recommended by the plugin documentation:
-        // https://github.com/fluttercommunity/plus_plugins/tree/main/packages/network_info_plus/network_info_plus
-        if (await Permission.locationWhenInUse.request().isGranted) {
-          wifiName = await _networkInfo.getWifiName();
-        } else {
-          wifiName = 'Unauthorized to get Wifi Name';
-        }
-      } else {
-        wifiName = await _networkInfo.getWifiName();
-      }
-    } on PlatformException catch (e) {
-      developer.log('Failed to get Wifi Name', error: e);
-      wifiName = 'Failed to get Wifi Name';
-    }
-
-    try {
-      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-        // Request permissions as recommended by the plugin documentation:
-        // https://github.com/fluttercommunity/plus_plugins/tree/main/packages/network_info_plus/network_info_plus
-        if (await Permission.locationWhenInUse.request().isGranted) {
-          wifiBSSID = await _networkInfo.getWifiBSSID();
-        } else {
-          wifiBSSID = 'Unauthorized to get Wifi BSSID';
-        }
-      } else {
-        wifiName = await _networkInfo.getWifiName();
-      }
-    } on PlatformException catch (e) {
-      developer.log('Failed to get Wifi BSSID', error: e);
-      wifiBSSID = 'Failed to get Wifi BSSID';
-    }
-
-    try {
-      wifiIPv4 = await _networkInfo.getWifiIP();
-    } on PlatformException catch (e) {
-      developer.log('Failed to get Wifi IPv4', error: e);
-      wifiIPv4 = 'Failed to get Wifi IPv4';
-    }
-
-    try {
-      wifiIPv6 = await _networkInfo.getWifiIPv6();
-    } on PlatformException catch (e) {
-      developer.log('Failed to get Wifi IPv6', error: e);
-      wifiIPv6 = 'Failed to get Wifi IPv6';
-    }
-
-    try {
-      wifiSubmask = await _networkInfo.getWifiSubmask();
-    } on PlatformException catch (e) {
-      developer.log('Failed to get Wifi submask address', error: e);
-      wifiSubmask = 'Failed to get Wifi submask address';
-    }
-
-    try {
-      wifiBroadcast = await _networkInfo.getWifiBroadcast();
-    } on PlatformException catch (e) {
-      developer.log('Failed to get Wifi broadcast', error: e);
-      wifiBroadcast = 'Failed to get Wifi broadcast';
-    }
-
-    try {
-      wifiGatewayIP = await _networkInfo.getWifiGatewayIP();
-    } on PlatformException catch (e) {
-      developer.log('Failed to get Wifi gateway address', error: e);
-      wifiGatewayIP = 'Failed to get Wifi gateway address';
-    }
-
-    setState(() {
-      _connectionStatus = 'Wifi Name: $wifiName\n'
-          'Wifi BSSID: $wifiBSSID\n'
-          'Wifi IPv4: $wifiIPv4\n'
-          'Wifi IPv6: $wifiIPv6\n'
-          'Wifi Broadcast: $wifiBroadcast\n'
-          'Wifi Gateway: $wifiGatewayIP\n'
-          'Wifi Submask: $wifiSubmask\n';
-    });
   }
 }
