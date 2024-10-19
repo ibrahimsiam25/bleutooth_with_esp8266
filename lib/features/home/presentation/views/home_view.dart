@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../main.dart';
+
 import 'widgets/home_view_body.dart';
 
 class HomeView extends StatelessWidget {
@@ -9,7 +9,11 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
-      body:MyHomePage()
+        appBar: AppBar(
+              title:const Text( 'Network Info'),
+              centerTitle: true,
+            ),
+      body:const HomeViewBody()
     );
   }
 }
