@@ -9,7 +9,7 @@ final WifiCredentials wifiCredentials;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: MyApp(wifiCredentials: wifiCredentials),
+      body: BluetoothConnectViewBody(wifiCredentials: wifiCredentials),
     );
   }
 }

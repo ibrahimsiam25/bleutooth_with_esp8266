@@ -1,5 +1,6 @@
-import 'dart:typed_data';
-import 'package:bloc/bloc.dart';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 
@@ -16,8 +17,8 @@ class BluetoothCubit extends Cubit<BluetoothState> {
       Permission.locationWhenInUse,
     ].request();
 
-    if (statuses[Permission.bluetoothConnect]?.isGranted == true &&
-        statuses[Permission.bluetoothScan]?.isGranted == true) {
+    final hasAllPermissions = statuses.values.every((status) => status.isGranted);
+    if (hasAllPermissions) {
       emit(BluetoothPermissionsGranted());
     } else {
       emit(BluetoothPermissionsDenied());
@@ -37,19 +38,26 @@ class BluetoothCubit extends Cubit<BluetoothState> {
     try {
       final connection = await BluetoothConnection.toAddress(address);
       emit(BluetoothConnected(connection));
-      sendData('111', connection);
     } catch (e) {
       emit(BluetoothError("Cannot connect, exception occurred: $e"));
     }
   }
 
-  Future<void> sendData(String data, BluetoothConnection connection) async {
-    data = data.trim();
+  Future<void> sendData(String wifiName, String wifiPassword) async {
+    final data = '$wifiName,$wifiPassword'.trim();
     try {
       final bytes = Uint8List.fromList(data.codeUnits);
-      connection.output.add(bytes);
-      await connection.output.allSent;
-      emit(BluetoothDataSent());
+      final currentState = state;
+
+      if (currentState is BluetoothConnected) {
+        currentState.connection.output.add(bytes);
+        await currentState.connection.output.allSent;
+        if (kDebugMode) {
+          print('Data sent successfully: $data');
+        }
+      } else {
+        emit(BluetoothError("No active Bluetooth connection."));
+      }
     } catch (e) {
       emit(BluetoothError("Failed to send data: $e"));
     }
