@@ -1,4 +1,5 @@
 import 'package:bleutooth_with_esp8266/core/routes/app_router.dart';
+import 'package:bleutooth_with_esp8266/features/home/data/model/wifi_credentials.dart';
 import 'package:bleutooth_with_esp8266/features/home/presentation/views/widgets/wifi_info.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,11 @@ class HomeViewBody extends StatelessWidget {
   void _validatePassword(BuildContext context) {
     final passwordState = context.read<PasswordCubit>().state;
     if (passwordState is PasswordUpdated && passwordState.password.isNotEmpty) {
-      GoRouter.of(context).push(AppRouter.kShowBluetoothAvailableView);
+      print(passwordState.password);
+      print(context.read<NetworkCubit>().wifiSSid);
+      GoRouter.of(context).push(AppRouter.kBluetoothConnectView,extra: 
+      WifiCredentials(wifiName: context.read<NetworkCubit>().wifiSSid??"not found", wifiPassword: passwordState.password)
+      );
     } else {
       // Show an error message if the password is empty.
       ScaffoldMessenger.of(context).showSnackBar(
@@ -65,8 +70,12 @@ class HomeViewBody extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                        ),
                         onPressed: () => _validatePassword(context),
-                        child: const Text('Connect to WiFi'),
+                        child: const Text('Connect to bluetooth'),
                       ),
                     ],
                   ),

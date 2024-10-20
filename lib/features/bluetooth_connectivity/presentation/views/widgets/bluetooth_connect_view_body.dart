@@ -1,13 +1,15 @@
-import 'dart:typed_data';
+
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+import '../../../../home/data/model/wifi_credentials.dart';
 
+class MyApp extends StatefulWidget {
+  const MyApp({super.key, required this.wifiCredentials,});
+final WifiCredentials wifiCredentials;
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -61,30 +63,26 @@ class _MyAppState extends State<MyApp> {
       }
     }
   }
+Future<void> sendData(String wifiName, String wifiPassword) async {
+  // Use a comma to separate the WiFi name and password
+  String data = '$wifiName,$wifiPassword';
+  data = data.trim();
 
-  Future<void> sendData(String data) async {
-    data = data.trim();
-    try {
-      List<int> list = data.codeUnits;
-      Uint8List bytes = Uint8List.fromList(list);
-      connection.output.add(bytes);
-      await connection.output.allSent;
-      if (kDebugMode) {
-        print('Data sent successfully');
-      }
-    } catch (e) {
-      print(e.toString());
+  try {
+    List<int> list = data.codeUnits;
+    Uint8List bytes = Uint8List.fromList(list);
+    connection.output.add(bytes);
+    await connection.output.allSent;
+    if (kDebugMode) {
+      print('Data sent successfully: $data');
     }
+  } catch (e) {
+    print(e.toString());
   }
-
+}
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text("Bluetooth Single LED Control"),
-        ),
-        body: Center(
+    return  Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -97,29 +95,24 @@ class _MyAppState extends State<MyApp> {
               ),
               SizedBox(height: 30.0),
               ElevatedButton(
-                child: Text("OPEN"),
+                child: Text("send wifi name and password"),
                 onPressed: () {
-                  sendData("on");
+                  print(widget.wifiCredentials.wifiName + widget.wifiCredentials.wifiPassword);
+                  sendData(widget.wifiCredentials.wifiName, widget.wifiCredentials.wifiPassword);
                 },
               ),
-              SizedBox(height: 10.0),
-              ElevatedButton(
-                child: Text("CLOSE"),
-                onPressed: () {
-                  sendData("off");
-                },
-              ),
+        
             ],
           ),
-        ),
-      ),
-    );
+        );
+      
+    
   }
 
   Future connect(String address) async {
     try {
       connection = await BluetoothConnection.toAddress(address);
-      sendData('111');
+      
       connection.input!.listen((Uint8List data) {
         // Data entry point
       });

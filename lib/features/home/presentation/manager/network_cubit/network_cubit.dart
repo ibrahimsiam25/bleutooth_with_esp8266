@@ -8,7 +8,7 @@ part 'network_state.dart';
 class NetworkCubit extends Cubit<NetworkState> {
   final NetworkInfo _networkInfo;
   final Connectivity _connectivity;
-
+  String? wifiSSid;
   NetworkCubit(this._networkInfo, this._connectivity) : super(NetworkInitial()) {
     _init();
   }
@@ -36,6 +36,7 @@ class NetworkCubit extends Cubit<NetworkState> {
 
     // Fetch WiFi Name
     wifiName = await _getWifiName();
+    wifiSSid = await _getWifiName();
     // Fetch WiFi BSSID
     wifiBSSID = await _getWifiBSSID();
     // Fetch WiFi IPv4
