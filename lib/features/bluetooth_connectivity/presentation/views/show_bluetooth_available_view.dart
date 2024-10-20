@@ -7,7 +7,7 @@ class ShowBluetoothAvailableView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ShowBluetoothAvailableViewBody(),
+      body: MyApp(),
     );
   }
 }

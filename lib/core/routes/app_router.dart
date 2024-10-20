@@ -12,7 +12,7 @@ static const kShowBluetoothAvailableView ="/showBluetoothAvailableView";
   static final router = GoRouter(
     routes: [
       GoRoute(
-        path: "/",
+        path: "/g",
         builder: (context, state) =>const SplashView(),
       ),
       GoRoute(
@@ -20,7 +20,7 @@ static const kShowBluetoothAvailableView ="/showBluetoothAvailableView";
         builder: (context, state) =>const HomeView(),
       ),
       GoRoute(
-        path: kShowBluetoothAvailableView,
+        path: "/",
         builder: (context, state) =>const ShowBluetoothAvailableView(),
       ),
       

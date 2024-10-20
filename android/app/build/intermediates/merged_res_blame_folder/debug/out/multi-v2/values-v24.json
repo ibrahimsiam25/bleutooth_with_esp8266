@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.example.application.app-mergeDebugResources-28:/values-v24/values-v24.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\siam\\.gradle\\caches\\transforms-3\\fce8643c5f71729fe1a2b32729174d9f\\transformed\\appcompat-1.3.0\\res\\values-v24\\values-v24.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,212",
+                        "endColumns": "156,134",
+                        "endOffsets": "207,342"
+                    }
+                }
+            ]
+        }
+    ]
+}
