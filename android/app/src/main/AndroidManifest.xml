@@ -22,7 +22,7 @@ package="com.example.bleutooth_with_esp8266">
     <application
         android:label="bleutooth_with_esp8266"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"
             android:exported="true"
