@@ -34,6 +34,7 @@ dependencies:
     sdk: flutter
   flutter_bloc: ^8.1.6
   flutter_bluetooth_serial: ^0.4.0
+  flutter_simple_bluetooth_printer: ^0.1.4
   flutter_svg: ^2.0.10+1
   go_router: ^14.3.0
   network_info_plus: ^6.1.0
