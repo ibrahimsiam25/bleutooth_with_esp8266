@@ -24,8 +24,7 @@ class HomeViewBody extends StatelessWidget {
   void _validatePassword(BuildContext context) {
     final passwordState = context.read<PasswordCubit>().state;
     if (passwordState is PasswordUpdated && passwordState.password.isNotEmpty) {
-      print(passwordState.password);
-      print(context.read<NetworkCubit>().wifiSSid);
+
       GoRouter.of(context).push(AppRouter.kBluetoothConnectView,extra: 
       WifiCredentials(wifiName: context.read<NetworkCubit>().wifiSSid??"not found", wifiPassword: passwordState.password)
       );

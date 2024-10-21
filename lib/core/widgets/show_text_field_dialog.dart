@@ -19,6 +19,7 @@ Future<dynamic> showTextFieldDialog(BuildContext context, TextEditingController 
             onPressed: () {
               // Handle the password input here
               String password = passwordController.text;
+              // ignore: avoid_print
               print('Password entered: $password');
               Navigator.of(context).pop(); // Close the dialog
             },
